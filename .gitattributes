@@ -1,0 +1,28 @@
+# Large binaries (embedded Python runtime zip, engine binaries) are tracked
+# as plain git blobs — all are well under GitHub's 100 MB per-file hard
+# limit, and git-lfs is intentionally NOT used: its free quota for public
+# repos (1 GB storage + 1 GB bandwidth/month) would be exhausted by release
+# CI clones and would break GitHub Actions builds.
+
+# Text files are stored as LF in git. On Windows checkouts (core.autocrlf)
+# working copies may be CRLF; build_release.py normalizes CRLF -> LF when
+# packing the zip, so release artifacts are byte-identical with the GitHub
+# Actions build (Linux) regardless of the checkout platform.
+* text=auto
+
+# Windows batch/script files must stay CRLF in working trees and release
+# archives: cmd.exe misbehaves on LF-only .bat files (label jumps, `set /p`
+# prompts), and PowerShell reads CRLF fine. build_release.py packs these
+# with forced CRLF line endings.
+*.bat text eol=crlf
+*.cmd text eol=crlf
+*.ps1 text eol=crlf
+
+# Binary file types (no EOL conversion).
+*.exe binary
+*.dll binary
+*.sys binary
+*.bin binary
+*.zip binary
+*.png binary
+*.woff2 binary

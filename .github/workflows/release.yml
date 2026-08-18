@@ -1,0 +1,95 @@
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      # Actions pinned by commit SHA (not mutable tags) for supply-chain
+      # integrity: a compromised/moved tag would otherwise run attacker code
+      # in this workflow. Comments keep the human-readable name + tag.
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      # Python 3.12 pinned to match the local build toolchain: the zip
+      # central-directory "version made by" byte (create_system) is written
+      # differently by zipfile in Python 3.13+, which would make CI artifacts
+      # differ from locally built ones.
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: '3.12'
+
+      - name: Run tests
+        run: |
+          python -m pip install --quiet pytest
+          python -m pytest tests -q
+
+      - name: Set version
+        id: ver
+        run: echo "VERSION=${GITHUB_REF##*/}" >> $GITHUB_OUTPUT
+
+      - name: Build release zip
+        # tools/build_release.py is the single source of truth for the
+        # artifact (python zipfile, deflate, dir entries, no "./" prefixes) -
+        # zips built with `tar`/`zip -r .` can be rejected by Windows
+        # Explorer's built-in extractor ("invalid format").
+        run: |
+          mkdir -p dist
+          python tools/build_release.py "${{ steps.ver.outputs.VERSION }}" --out dist
+        env:
+          PYTHONIOENCODING: utf-8
+
+      - name: Compute sha256
+        run: |
+          cd dist
+          sha256sum Tarn-*.zip > SHA256SUMS.txt
+          cat SHA256SUMS.txt
+
+      - uses: softprops/action-gh-release@3bb12739c298aeb8a4eeaf626c5b8d85266b0e65 # v2
+        with:
+          files: |
+            dist/Tarn-*.zip
+            dist/SHA256SUMS.txt
+          body: |
+            ## Tarn — Network Research Tool for Chromium
+
+            **Deterministic extension ID**: `jiadcegfgdohggekdciecfialalkbnpo`
+            (derived automatically by `install.bat` from `manifest.json` — no hardcoding)
+
+            ## Install
+
+            1. Download `Tarn-${{ steps.ver.outputs.VERSION }}.zip`
+            2. Unzip to any folder (e.g. `C:\tarn` or `~/tarn`)
+            3. Open `chrome://extensions/` — enable Developer mode (top-right toggle)
+            4. Click "Load unpacked" — select the unzipped folder
+            5. Open the Tarn popup — it shows **"tunnel unavailable"** until the
+                native host is installed. That is expected.
+            6. **Double-click `install.bat`** inside the unzipped folder
+                *(no Admin needed, no downloads — everything is bundled;
+                one optional UAC prompt creates the DPI service)*
+            7. Seconds later the popup flips to **"available"** by itself —
+                no reload, no Chrome restart → paste your WG `.conf`, Connect
+
+            Done. The tunnel and DPI bypass work out of the box.
+
+            **Upgrades**: replace the folder, click "Update" in
+            `chrome://extensions/`, re-run `install.bat` — the popup
+            re-verifies the host on its own, no Chrome restart needed.
+
+            ## Verify
+
+            ```
+            sha256sum -c SHA256SUMS.txt
+            ```
+
+            ## Update
+
+            Replace the unzipped folder with the new release, click "Update" in
+            `chrome://extensions/`, and double-click `install.bat` again (it is
+            idempotent — re-running it just refreshes paths and registry keys).

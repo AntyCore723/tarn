@@ -1,0 +1,6 @@
+# Targeted-group hosts for the packet filter engine (--hostlist-exclude of the
+# "targeted" rule group: HTTPS/443 with ip-id=zero desync).
+# Empty by default: add hosts here only if you want the specialized
+# targeted-group treatment for a specific site. Most users can rely on
+# dom.user (extension UI: "Additional domains to bypass").
+# One host per line.

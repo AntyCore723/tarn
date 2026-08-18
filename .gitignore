@@ -1,0 +1,65 @@
+# ============================================================================
+# Tarn - secrets and local build artifacts (NEVER commit)
+# ============================================================================
+
+# Private extension signing key
+# This is the RSA private key for the manifest.json "key" field. The PUBLIC
+# key lives in manifest.json and IS committed. The PRIVATE key must NEVER
+# be committed - anyone with it could upload to the Chrome Web Store under
+# your listing ID.
+tools/extension_key.json
+tools/extension_key.pem
+tools/extension_private.pem
+*.pem
+
+# Python bytecode caches
+__pycache__/
+*.pyc
+*.pyo
+
+# Test caches (never commit or publish)
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Local install artifacts (created by install.bat on developer machine)
+.wg-browser-tunnel/
+~/.wg-browser-tunnel/
+
+# Build output
+dist/
+*.zip
+*.crx
+*.crx.pem
+
+# OS / editor cruft
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+.vscode/
+.idea/
+
+# Logs
+*.log
+host.log
+
+# Audit/worklog files (must NOT be committed or published)
+worklog.md
+worklog(1).md
+*worklog*.md
+*audit*.md
+
+# User WG configs (NEVER commit user secrets)
+*.conf
+!engine/conf/*.lst
+!engine/conf/*.user
+
+# Local dev artifacts (never commit)
+install.log
+dpi_strategy.txt
+
+# Bundled portable Python (11MB) is tracked as a plain git blob (see
+# .gitattributes) so GitHub Actions release builds can include it in the
+# release zip.
+!python-embed-amd64.zip

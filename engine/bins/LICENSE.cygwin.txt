@@ -1,0 +1,15 @@
+Cygwin Runtime Library License
+==============================
+
+cygwin1.dll is part of the Cygwin runtime, covered by the GNU Lesser
+General Public License (LGPL) version 3 or later, with the Cygwin Linking
+Exception (not the GCC Runtime Library Exception — Cygwin has its own
+exception, see https://cygwin.com/licensing.html).
+
+The full license text is provided in:
+  - LICENSES/Cygwin-COPYING.txt
+
+Source code for Cygwin is available at:
+  - https://cygwin.com/
+
+Copyright (c) Red Hat, Inc. and contributors to the Cygwin project

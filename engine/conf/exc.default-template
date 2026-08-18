@@ -1,0 +1,10 @@
+# Optional exclusion list template for the packet filter.
+# Copy this file to exc.lst to activate, or add your own domains to exc.lst directly.
+# One host per line. Lines starting with # are comments.
+#
+# This file is empty by default — the filter will process all traffic.
+# Add domains here that the packet filter should NOT touch (e.g. banking, healthcare).
+#
+# Example:
+#   example-bank.com
+#   my-healthcare-provider.com

@@ -1,0 +1,1 @@
+{"name": "com.tarn.host", "description": "Tarn - tunnel native messaging host", "path": "REPLACED_BY_INSTALL_BAT", "type": "stdio", "allowed_origins": ["chrome-extension://jiadcegfgdohggekdciecfialalkbnpo/"]}

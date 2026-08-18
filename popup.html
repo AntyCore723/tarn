@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tarn</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="shell">
+    <div class="header">
+      <div class="logo">
+        <img id="mascotImg" src="mascot/sit.png" alt="Tarn" width="72" height="72" style="image-rendering:pixelated">
+      </div>
+        <div class="tarn-title">
+          <span class="tarn-letter">T</span><span class="tarn-letter">A</span><span class="tarn-letter">R</span><span class="tarn-letter">N</span>
+          <div id="starBadge" class="star-badge" style="display:none">
+            <img src="mascot/star1.png" class="star-img" alt="★">
+          </div>
+        </div>
+      <div class="spacer"></div>
+      <button class="icon-btn" id="optionsBtn" data-i18n-title="settingsBtn" title="Настройки" aria-label="Настройки">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="3"/>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+        </svg>
+      </button>
+    </div>
+
+    <div id="status" class="status disconnected">
+      <span class="dot"></span>
+      <span id="statusText" data-i18n="disconnected">Отключено</span>
+      <span class="meta" id="statusMeta"></span>
+    </div>
+
+    <div id="installBanner" class="install-banner" style="display:none">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15v-4H8l5-7v4h3l-5 7z"/></svg>
+      <div>
+        <strong id="installTitle" data-i18n="installTitle">ТРЕБУЕТСЯ NATIVE HOST</strong> — <span id="installDesc" data-i18n="installDesc">Для работы туннеля необходим компонент native host.</span>
+        <br><small id="installHint" data-i18n="installHint">Установщик уже лежит в папке расширения — запусти там install.bat. Статус сменится на «доступен» сам.</small>
+      </div>
+    </div>
+
+    <div id="autoBanner" class="auto-banner" style="display:none">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      <div>
+        <strong data-i18n="autoBannerTitle">Авто-стратегия может не работать</strong>
+        <span data-i18n="autoBannerDesc">Лучший способ фильтра пакетов зависит от сети (LAN/WiFi). Пройди полный тест стратегий — расширение выберет и сохранит лучшую автоматически.</span>
+        <button class="auto-banner-btn blink" id="autoSettingsBtn" data-i18n="autoBannerBtn">Настроить фильтр пакетов</button>
+      </div>
+    </div>
+
+    <div id="realBanner" class="real-banner" style="display:none">
+      <span class="dot" aria-hidden="true"></span>
+      <div>
+        <strong id="realBannerTitle" data-i18n="connected">Подключено</strong>
+        <span id="realBannerDesc" class="real-desc" data-i18n="realBannerDesc">Трафик идёт через WG.</span>
+        <div class="ip-row">IP: <code id="publicIp">—</code></div>
+      </div>
+    </div>
+
+    <div class="section-title" data-i18n="profileLabel">Профиль</div>
+    <div class="select-wrap">
+      <select id="profileSelect">
+        <option value="" data-i18n="noProfiles">— нет профилей —</option>
+      </select>
+    </div>
+
+    <div class="actions">
+      <button class="btn primary" id="connectBtn" disabled>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        <span data-i18n="connect">Подключить</span>
+      </button>
+      <button class="btn danger" id="disconnectBtn" disabled>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+        <span data-i18n="disconnect">Отключить</span>
+      </button>
+    </div>
+
+    <div class="stats">
+      <div class="stat"><div class="label" data-i18n="uptime">Uptime</div><div class="value" id="uptimeVal">—</div></div>
+      <div class="stat"><div class="label" data-i18n="ping">Пинг</div><div class="value" id="statPing">— <small>ms</small></div></div>
+    </div>
+
+    <div class="tunnel-warning" id="tunnelWarning" style="display:none">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      <span data-i18n="tunnelDead">Туннель неактивен — трафик не проходит через VPN</span>
+    </div>
+
+    <div class="dpi-section" id="dpiSection">
+      <div class="dpi-header">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        <span data-i18n="dpiSection">Фильтр пакетов</span>
+        <div class="dpi-status-wrap">
+          <span class="dpi-status" id="dpiStatus" data-i18n="dpiOff">неактивен</span>
+          <span class="dot dpi-dot" id="dpiDot"></span>
+        </div>
+      </div>
+      <div class="dpi-controls">
+        <button class="btn dpi-toggle" id="dpiToggleBtn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          <span data-i18n="dpiEnable">Включить фильтр пакетов</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="quick">
+      <a id="addProfile" data-i18n-title="add" title="Добавить конфиг">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+        <span data-i18n="add">Добавить</span>
+      </a>
+      <a id="checkIp" data-i18n-title="myIp" title="Проверить IP">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 0 1 0 20M12 2a15 15 0 0 0 0 20"/></svg>
+        <span data-i18n="myIp">Мой IP</span>
+      </a>
+      <a id="leakTest" data-i18n-title="leaks" title="Проверка утечек">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2s7 5 7 11a7 7 0 1 1-14 0c0-6 7-11 7-11z"/></svg>
+        <span data-i18n="leaks">Утечки</span>
+      </a>
+    </div>
+  </div>
+
+  <script src="lib/i18n.js"></script>
+  <script src="lib/parser.js"></script>
+  <script src="lib/storage.js"></script>
+  <script src="lib/proxy.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>

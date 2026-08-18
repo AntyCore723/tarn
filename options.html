@@ -1,0 +1,628 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tarn — Settings</title>
+  <link rel="stylesheet" href="options.css">
+</head>
+<body>
+  <div class="layout">
+    <div class="topbar">
+      <div class="brand">
+        <div class="logo">
+          <img src="icons/logo80.png" alt="Tarn" width="72" height="72" style="image-rendering:pixelated">
+        </div>
+        <div>
+          <div class="tarn-title">
+            <span class="tarn-letter">T</span><span class="tarn-letter">A</span><span class="tarn-letter">R</span><span class="tarn-letter">N</span>
+            <div id="starBadge" class="star-badge" style="display:none">
+              <img src="mascot/star1.png" class="star-img" alt="★">
+            </div>
+          </div>
+          <div class="sub" data-i18n="sub">Профили · Настройки · Native Host</div>
+        </div>
+      </div>
+      <div class="spacer"></div>
+      <div id="healthBadge" class="health-badge unknown">
+        <span class="dot"></span>
+        <span id="healthText" data-i18n="healthCheck">проверка…</span>
+      </div>
+    </div>
+
+    <div class="tabs">
+      <button class="tab active" data-tab="profiles">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        <span data-i18n="tabProfiles">Профили</span>
+      </button>
+      <button class="tab" data-tab="add">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+        <span data-i18n="tabAdd">Добавить</span>
+      </button>
+      <button class="tab" data-tab="settings">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        <span data-i18n="tabSettings">Настройки</span>
+      </button>
+      <button class="tab" data-tab="stats">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 16l4-4 3 3 5-6"/></svg>
+        <span data-i18n="tabStats">Статистика</span>
+      </button>
+      <button class="tab" data-tab="install">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5M12 15V3"/></svg>
+        <span data-i18n="tabInstall">Установка</span>
+      </button>
+      <button class="tab" data-tab="dpi">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        <span data-i18n="tabDpi">Фильтр пакетов</span>
+      </button>
+    </div>
+
+    <!-- PROFILES PANEL -->
+    <div class="panel active" id="panel-profiles">
+      <div class="card">
+        <h2 data-i18n="profilesTitle">Профили WG</h2>
+        <div class="desc" data-i18n="profilesDesc">Список сохранённых конфигураций. Активный профиль используется при подключении.</div>
+        <div id="profileList"></div>
+        <div class="btn-row" style="margin-top:12px">
+          <button class="btn primary" id="goAddBtn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+            <span data-i18n="addProfileBtn">Добавить профиль</span>
+          </button>
+          <button class="btn export-btn" id="exportBtn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+            <span data-i18n="exportBtn">Экспорт</span>
+          </button>
+          <button class="btn import-btn" id="importBtn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
+            <span data-i18n="importBtn">Импорт</span>
+          </button>
+          <input type="file" id="importFile" accept=".json" style="display:none">
+        </div>
+      </div>
+
+      <div class="game-section" style="margin-top:16px">
+        <button class="btn" id="gameLaunchBtn" style="width:100%">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+          <span>&#9654;</span>
+        </button>
+      </div>
+
+      <div class="profiles-mascot" id="profilesMascot">
+        <img src="mascot/stand.png" alt="" width="80" height="80" style="image-rendering:pixelated">
+      </div>
+    </div>
+
+    <!-- ADD PANEL -->
+    <div class="panel" id="panel-add">
+      <div id="welcomeAlert"></div>
+
+      <div class="card">
+        <h2 id="addHeading" data-i18n="addHeading">Добавить WG конфигурацию</h2>
+        <div class="desc" data-i18n="addDesc">Вставь код конфига, либо перетащи <code>.conf</code> файл. Конфиг парсится и валидируется локально.</div>
+
+        <div class="alert info" id="keyLeakWarn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          <div><strong data-i18n="localPrivate">Локально и приватно.</strong> <span data-i18n="localDesc">Все конфиги хранятся только в браузере. Приватный ключ не покидает ваше устройство.</span></div>
+        </div>
+
+        <div class="field">
+          <label data-i18n="nameLabel">Название профиля</label>
+          <input class="input" id="nameInput" data-i18n-placeholder="namePH" placeholder="например: Home VPN, Work, Amsterdam">
+        </div>
+
+        <div class="dropzone" id="dropzone">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
+          <strong data-i18n="dropzone">Перетащи .conf файл сюда</strong>
+          <div data-i18n="dropzoneHint">или нажми чтобы выбрать файл</div>
+          <input type="file" id="fileInput" accept=".conf,.txt,text/plain" style="display:none">
+        </div>
+
+        <div class="field">
+          <label data-i18n="orPaste">Или вставь код конфига</label>
+          <textarea class="textarea" id="configInput" placeholder="[Interface]&#10;PrivateKey = ...&#10;Address = 10.7.0.42/32&#10;DNS = 1.1.1.1, 1.0.0.1&#10;&#10;[Peer]&#10;PublicKey = ...&#10;AllowedIPs = 0.0.0.0/0&#10;Endpoint = host:51820"></textarea>
+        </div>
+
+        <div class="btn-row">
+          <button class="btn primary" id="validateBtn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="10"/></svg>
+            <span data-i18n="validateBtn">Проверить конфиг</span>
+          </button>
+          <button class="btn" id="genKeyBtn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="7.5" cy="15.5" r="5.5"/><path d="m21 2-9.6 9.6M15.5 7.5l3 3L22 7l-3-3"/></svg>
+            <span data-i18n="genKeysBtn">Сгенерировать ключи</span>
+          </button>
+          <button class="btn ghost" id="clearBtn" data-i18n="clearBtn">Очистить</button>
+        </div>
+
+        <div id="validationResult"></div>
+        <div id="preview"></div>
+
+        <div class="btn-row" style="margin-top:14px">
+          <button class="btn primary" id="saveProfileBtn" disabled>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><path d="M17 21v-8H7v8M7 3v5h8"/></svg>
+            <span data-i18n="saveBtn">Сохранить профиль</span>
+          </button>
+          <button class="btn" id="saveAndConnectBtn" disabled data-i18n="saveConnectBtn">Сохранить и подключить</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- SETTINGS PANEL -->
+    <div class="panel" id="panel-settings">
+      <div class="card">
+        <h2 data-i18n="tunnelStatus">Статус туннеля</h2>
+        <div class="desc" data-i18n="tunnelDesc">Проверка готовности native host и wireproxy.</div>
+        <div class="backend-status-grid">
+          <div class="backend-card" id="nativeCard">
+            <div class="bc-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+            </div>
+            <div class="bc-info">
+              <div class="bc-title" data-i18n="nativeHost">Native Host</div>
+              <div class="bc-status" id="nativeStatusText" data-i18n="healthCheck">проверка…</div>
+              <div class="bc-detail" id="nativeDetail"></div>
+            </div>
+            <button class="btn btn-sm" id="pingNativeBtn" data-i18n="checkBtn">Проверить</button>
+          </div>
+          <div class="backend-card" id="wireproxyCard">
+            <div class="bc-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 4 5v6c0 5 3.4 9.4 8 11 4.6-1.6 8-6 8-11V5z"/></svg>
+            </div>
+            <div class="bc-info">
+              <div class="bc-title" data-i18n="wireproxyName">wireproxy</div>
+              <div class="bc-status" id="wireproxyStatusText" data-i18n="healthCheck">проверка…</div>
+              <div class="bc-detail" id="wireproxyDetail"></div>
+            </div>
+            <button class="btn btn-sm" id="checkWpBtn" data-i18n="checkBtn">Проверить</button>
+          </div>
+        </div>
+        <div class="alert warn" id="noTunnelWarn" style="display:none">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0zM12 9v4M12 17h.01"/></svg>
+          <div data-i18n="noTunnelWarn">РЕАЛЬНЫЙ туннель недоступен. Без wireproxy расширение не может направлять трафик через WG. Перейдите во вкладку «Установка».</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2 data-i18n="settingsTitle">Настройки подключения</h2>
+        <div class="desc" data-i18n="settingsDesc">Параметры прокси, нативного хоста и защиты от утечек.</div>
+
+        <div class="grid grid-2">
+          <div class="field">
+            <label data-i18n="langLabel">Язык / Language</label>
+            <select id="setLang">
+              <option value="auto" data-i18n="autoLang">Авто (из системы)</option>
+              <option value="ru">Русский</option>
+              <option value="en">English</option>
+              <option value="zh">中文</option>
+            </select>
+          </div>
+          <div class="field">
+            <label data-i18n="modeLabel">Режим работы</label>
+            <select id="setMode">
+              <option value="native" data-i18n="modeNative">Реальный туннель (native + wireproxy)</option>
+            </select>
+          </div>
+          <div class="field">
+            <label data-i18n="nativeHostName">Native messaging host name</label>
+            <input class="input" id="setHostName" placeholder="com.tarn.host">
+          </div>
+          <div class="field">
+            <label>SOCKS5 host</label>
+            <input class="input" id="setSocksHost" placeholder="127.0.0.1">
+          </div>
+          <div class="field">
+            <label>SOCKS5 port</label>
+            <input class="input" id="setSocksPort" type="number" placeholder="1080">
+          </div>
+        </div>
+
+        <div class="setting-row">
+          <div>
+            <div class="label" data-i18n="autoConnect">Автоподключение при запуске браузера</div>
+            <div class="help" data-i18n="autoConnectDesc">Автоматически поднимает активный профиль при старте Chrome</div>
+          </div>
+          <label class="switch"><input type="checkbox" id="setAutoConnect"><span class="slider"></span></label>
+        </div>
+        <div class="setting-row">
+          <div>
+            <div class="label" data-i18n="killSwitch">Kill switch</div>
+            <div class="help" data-i18n="killSwitchDesc">Блокировать трафик при падении туннеля (предотвращает утечки)</div>
+          </div>
+          <label class="switch"><input type="checkbox" id="setKillSwitch"><span class="slider"></span></label>
+        </div>
+        <div class="setting-row">
+          <div>
+            <div class="label" data-i18n="webrtc">Защита WebRTC утечек</div>
+            <div class="help" data-i18n="webrtcDesc">Устанавливает webRTCIPHandlingPolicy = disable_non_proxied_udp</div>
+          </div>
+          <label class="switch"><input type="checkbox" id="setWebrtc"><span class="slider"></span></label>
+        </div>
+        <div class="setting-row">
+          <div>
+            <div class="label" data-i18n="quic">Отключать QUIC (рекомендуется)</div>
+            <div class="help" data-i18n="quicDesc">QUIC/HTTP3 использует UDP и не проксируется через SOCKS5. Блокирует alt-svc заголовок.</div>
+          </div>
+          <label class="switch"><input type="checkbox" id="setDisableQuic"><span class="slider"></span></label>
+        </div>
+        <div class="setting-row">
+          <div>
+            <div class="label" data-i18n="verifyIp">Проверка IP после подключения</div>
+            <div class="help" data-i18n="verifyIpDesc">Сравнивает публичный IP до и после — подтверждает что туннель работает</div>
+          </div>
+          <label class="switch"><input type="checkbox" id="setVerifyIp"><span class="slider"></span></label>
+        </div>
+        <div class="setting-row">
+          <div>
+            <div class="label" data-i18n="statsEnabled">Сбор статистики</div>
+            <div class="help" data-i18n="statsEnabledDesc">Собирает трафик и длительность сессий. Отключите для максимальной приватности.</div>
+          </div>
+          <label class="switch"><input type="checkbox" id="setStatsEnabled"><span class="slider"></span></label>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2 data-i18n="splitTitle">Split tunneling (раздельное туннелирование)</h2>
+        <div class="desc" data-i18n="splitDesc">Выбери какие домены идут через VPN, а какие — напрямую.</div>
+        <div class="setting-row">
+          <div>
+            <div class="label" data-i18n="splitEnable">Включить split tunneling</div>
+            <div class="help" data-i18n="splitEnableDesc">Использует PAC-скрипт вместо fixed_servers</div>
+          </div>
+          <label class="switch"><input type="checkbox" id="setSplit"><span class="slider"></span></label>
+        </div>
+        <div class="grid grid-2">
+          <div class="field">
+            <label data-i18n="splitMode">Режим</label>
+            <select id="setSplitMode">
+              <option value="exclude" data-i18n="splitExclude">Все через VPN, КРОМЕ списка</option>
+              <option value="include" data-i18n="splitInclude">Только список через VPN</option>
+            </select>
+          </div>
+          <div class="field">
+            <label data-i18n="bypassLabel">Bypass-список (Chrome)</label>
+            <div class="tag-list" id="bypassList"></div>
+          </div>
+        </div>
+        <div class="field">
+          <label data-i18n="splitDomains">Домены для split tunneling</label>
+          <div class="tag-list" id="splitDomains"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STATS PANEL -->
+    <div class="panel" id="panel-stats">
+      <div class="card">
+        <h2 data-i18n="statsTitle">Статистика использования</h2>
+        <div class="desc" data-i18n="statsDesc">Суммарно по всем сессиям.</div>
+        <div id="statsDisabled" style="display:none" class="alert info">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+          <div data-i18n="statsDisabled">Статистика отключена. Включите в настройках.</div>
+        </div>
+        <div id="statsContent">
+          <div class="stats-grid">
+            <div class="stat-card"><div class="label" data-i18n="totalSessions">Сессий</div><div class="value" id="totalSessions">0</div></div>
+            <div class="stat-card"><div class="label" data-i18n="totalProfiles">Профилей</div><div class="value" id="totalProfiles">0</div></div>
+          </div>
+          <div class="btn-row" style="margin-bottom:14px">
+            <button class="btn danger" id="resetStatsBtn" data-i18n="resetStatsBtn">Сбросить статистику</button>
+          </div>
+          <h3 style="font-size:13px;margin:16px 0 8px" data-i18n="recentSessions">Последние сессии</h3>
+          <div style="overflow-x:auto">
+            <table class="sessions" id="sessionsTable">
+              <thead><tr><th data-i18n="sessProfile">Профиль</th><th data-i18n="sessStart">Начало</th><th data-i18n="sessDuration">Длительность</th></tr></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- INSTALL PANEL -->
+    <div class="panel" id="panel-install">
+      <div class="card">
+        <div class="install-mascot">
+          <img src="mascot/wave.png" alt="" width="64" height="64" style="image-rendering:pixelated">
+        </div>
+        <h2 data-i18n="installTitle">Установка нативного хоста + wireproxy</h2>
+        <div class="desc">
+          <span data-i18n="installDesc1">Чтобы трафик РЕАЛЬНО шёл через WG, нужен wireproxy — userspace-клиент WG, который поднимает локальный SOCKS5-прокси.</span>
+          <span data-i18n="installDesc2">Без него расширение не может направлять трафик через WG.</span>
+        </div>
+
+        <div class="alert info">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+          <div>
+            <strong data-i18n="archTitle">Архитектура:</strong><br>
+            <span data-i18n="archDesc">Chrome → <code>chrome.proxy</code> (SOCKS5) → <code>wireproxy</code> (127.0.0.1:1080) → WG шифрование → peer Endpoint → интернет.</span><br>
+            <strong data-i18n="archNote">Без root, без TUN, без системного VPN. Только TCP проксируется (UDP/QUIC блокируется).</strong>
+          </div>
+        </div>
+
+        <h3 style="margin-top:18px;font-size:14px" data-i18n="winTitle">Windows — установка в 1 клик</h3>
+        <div class="alert info" style="margin-bottom:12px">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+          <div data-i18n="winReady">
+            <strong>Порядок важен:</strong> сначала загрузи расширение в Chrome, затем запусти install.bat — скрипт сам найдёт ваш Extension ID.
+          </div>
+        </div>
+        <div id="extIdDisplay" style="margin:0 0 8px 0;font-size:12px;color:var(--muted)"></div>
+        <ol class="steps">
+          <li data-i18n="step1">Загрузи расширение: chrome://extensions → «Режим разработчика» → «Загрузить распакованное расширение» → выбери распакованную папку.</li>
+          <li data-i18n="step1b">Открой попап Tarn — там будет «туннель недоступен» (native host ещё не установлен). Это нормально.</li>
+          <li>
+            <span data-i18n="step2">Открой папку расширения и запусти install.bat двойным кликом — он установит всё сам:</span>
+            <ul style="margin:8px 0 0 16px;padding:0;font-size:12px;color:var(--muted)">
+              <li data-i18n="step2a">Найдёт Python (или возьмёт встроенный)</li>
+              <li data-i18n="step2b">Скопирует движок фильтра пакетов</li>
+              <li data-i18n="step2c">Определит Extension ID из Chrome</li>
+              <li data-i18n="step2d">Зарегистрирует native host в реестре</li>
+            </ul>
+          </li>
+          <li data-i18n="step3">Статус в попапе сменится на «доступен» САМ — без перезагрузки Chrome.</li>
+          <li data-i18n="step4">Для фильтра пакетов конфиг не нужен: вкладка «Фильтр пакетов» → «Полный тест стратегий» → включи фильтр. Для туннеля: добавь .conf → Connect.</li>
+        </ol>
+
+        <div class="alert warn" style="margin-top:12px">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0zM12 9v4M12 17h.01"/></svg>
+          <div>
+            <strong data-i18n="forbiddenTitle">Ошибка "forbidden"?</strong> <span data-i18n="forbiddenDesc">Расширение не загружено в Chrome или Extension ID изменился. Заново запусти install.bat или перезагрузи расширение.</span>
+          </div>
+        </div>
+
+        <h3 style="margin-top:18px;font-size:14px" data-i18n="linuxTitle">Linux / macOS</h3>
+        <ol class="steps">
+          <li data-i18n="linuxStep1">Скачай файлы установки (кнопка выше) или склонируй репозиторий</li>
+          <li data-i18n="linuxStep2">Запусти в терминале:
+            <pre class="code-block">chmod +x install.sh
+./install.sh</pre>
+          </li>
+          <li data-i18n="linuxStep4">Подключи профиль — трафик пойдёт через WG.</li>
+        </ol>
+
+        <h3 style="margin-top:18px;font-size:14px" data-i18n="manualTitle">Ручная установка wireproxy</h3>
+        <div class="desc" data-i18n="manualDesc">Если установщик не справился, скачай wireproxy вручную:</div>
+        <pre class="code-block"><span data-i18n="manualComment"># Linux/macOS — положи бинарник сюда:</span>
+~/.tarn-tunnel/bin/wireproxy
+chmod +x ~/.tarn-tunnel/bin/wireproxy
+
+<span data-i18n="manualPath"># Скачать: https://github.com/windtf/wireproxy/releases/latest</span></pre>
+
+        <div class="alert warn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0zM12 9v4M12 17h.01"/></svg>
+          <div>
+            <strong data-i18n="limitsTitle">Ограничения браузерного VPN:</strong>
+            <ul style="margin:6px 0 0 18px;padding:0">
+              <li data-i18n="limits1">SOCKS5 проксирует только TCP. UDP (QUIC, WebRTC) блокируется принудительно.</li>
+              <li data-i18n="limits2">Только трафик браузера Chrome. Системный трафик и другие приложения НЕ идут через туннель.</li>
+              <li data-i18n="limits3">Для системного VPN используйте нативный WG клиент.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PACKET FILTER PANEL -->
+    <div class="panel" id="panel-dpi">
+      <div class="card">
+        <div class="dpi-mascot">
+          <img src="mascot/shy.png" alt="" width="56" height="56" style="image-rendering:pixelated">
+        </div>
+        <h2 data-i18n="dpiTitle">Настройки фильтра пакетов</h2>
+        <div class="desc" data-i18n="dpiDesc">Настройте стратегии десинхронизации и списки доменов для фильтра пакетов</div>
+
+        <div class="dpi-engine-section">
+          <h3 data-i18n="dpiManage">Управление фильтром пакетов</h3>
+
+          <div class="btn-row" style="margin-top:12px">
+            <button class="btn primary" id="dpiStartBtn">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+              <span data-i18n="dpiEnable">Включить фильтр пакетов</span>
+            </button>
+            <button class="btn danger" id="dpiStopBtn" style="display:none">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+              <span data-i18n="dpiDisable">Отключить фильтр пакетов</span>
+            </button>
+          </div>
+
+          <div class="dpi-status-box" id="dpiStatusBox" style="margin-top:12px">
+            <div class="dpi-status-row">
+              <span class="dpi-label" data-i18n="dpiRunning">Фильтр пакетов работает</span>
+              <span class="dpi-value" id="dpiStatusText">—</span>
+            </div>
+            <div class="dpi-status-row" id="dpiStrategyRow" style="display:none">
+              <span class="dpi-label" data-i18n="dpiStrategyCurrent">Текущая стратегия</span>
+              <span class="dpi-value" id="dpiStrategyText">—</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="dpi-strategy-section" style="margin-top:18px">
+          <h3 data-i18n="dpiStrategyTitle">Стратегия фильтра пакетов</h3>
+          <div class="desc" data-i18n="dpiStrategyDesc">Авто — расширение само подберёт лучший способ (из 10 стратегий десинхронизации), проверяя реальную доступность проверочных целей. Выбранная стратегия сохраняется и используется при следующих запусках.</div>
+          <div class="field" style="max-width:380px">
+            <select class="input" id="dpiStrategy"></select>
+          </div>
+          <div class="btn-row" style="margin-top:8px">
+            <button class="btn" id="dpiTestBtn">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h4l3-9 4 18 3-9h4"/></svg>
+              <span data-i18n="dpiStrategyTest">Полный тест стратегий</span>
+            </button>
+            <div class="passes-field" title="">
+              <label data-i18n="dpiTestPassesLabel">Проходов на конфиг</label>
+              <select id="dpiTestPasses">
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3" selected>3</option>
+                <option value="5">5</option>
+              </select>
+            </div>
+            <button class="btn" id="dpiSaveStrategyBtn">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+              <span data-i18n="dpiSave">Сохранить</span>
+            </button>
+          </div>
+          <div id="dpiTestArea" style="display:none;margin-top:14px">
+            <div class="test-progress-row">
+              <div class="test-progress-wrap"><div class="test-progress-bar" id="dpiTestBar"></div></div>
+              <span class="test-progress-pct" id="dpiTestPct">0%</span>
+            </div>
+            <div class="test-meta" id="dpiTestMeta"></div>
+            <div class="test-controls" id="dpiTestControls">
+              <button class="btn btn-sm" id="dpiTestPauseBtn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="4" width="4" height="16"/><rect x="13" y="4" width="4" height="16"/></svg>
+                <span data-i18n="dpiTestPause">Пауза</span>
+              </button>
+              <button class="btn btn-sm danger" id="dpiTestStopBtn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="6" width="12" height="12"/></svg>
+                <span data-i18n="dpiTestStop">Остановить</span>
+              </button>
+            </div>
+            <div class="test-log" id="dpiTestLog"></div>
+            <div class="test-result" id="dpiTestResult"></div>
+          </div>
+          <div class="desc" style="margin-top:10px" id="dpiTestResults"></div>
+        </div>
+
+        <div class="dpi-diag-section" style="margin-top:18px">
+          <h3 data-i18n="dpiDiagTitle">Полная диагностика</h3>
+          <div class="desc" data-i18n="dpiDiagDesc">Проверка движка, службы фильтра, драйвера WinDivert, DNS, интернета и лога — одним нажатием.</div>
+          <div class="btn-row" style="margin-top:8px">
+            <button class="btn" id="dpiDiagBtn">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+              <span data-i18n="dpiDiagBtn">Запустить диагностику</span>
+            </button>
+            <button class="btn" id="dpiDiagCopyBtn" style="display:none" data-i18n="dpiDiagCopy">Копировать отчёт</button>
+          </div>
+          <div class="diag-output" id="dpiDiagOutput"></div>
+        </div>
+
+        <div class="dpi-domains-section" style="margin-top:18px">
+          <h3 data-i18n="dpiCustomDomainsLabel">Дополнительные домены</h3>
+          <div class="desc" data-i18n="dpiCustomDomainsDesc">Добавьте домены, которые фильтр должен обрабатывать помимо стандартных списков</div>
+          <div id="dpiCustomDomainsWrap"></div>
+        </div>
+
+        <div class="dpi-excluded-section" style="margin-top:18px">
+          <h3 data-i18n="dpiExcludedDomainsLabel">Исключённые домены</h3>
+          <div class="desc" data-i18n="dpiExcludedDomainsDesc">Домены, которые фильтр никогда не должен затрагивать. Для них десинхронизация полностью отключается.</div>
+          <div id="dpiExcludedDomainsWrap"></div>
+        </div>
+
+        <div class="dpi-probe-targets-section" style="margin-top:18px">
+          <h3 data-i18n="dpiProbeTargetsLabel">Проверочные цели (probe targets)</h3>
+          <div class="desc" data-i18n="dpiProbeTargetsDesc">Домены, через которые проверяется работоспособность стратегии. По умолчанию используются встроенные примеры. Укажите свои цели для проверки конкретных сайтов.</div>
+          <div id="dpiProbeTargetsWrap"></div>
+        </div>
+
+        <div class="dpi-bypass-section" style="margin-top:18px">
+          <h3 data-i18n="dpiBrowserCountermeasures">Privacy & Network Protection</h3>
+          <div class="toggle-row">
+            <div>
+              <div class="toggle-label" data-i18n="dpiForceDoh">Форсировать DNS-over-HTTPS</div>
+              <div class="toggle-desc" data-i18n="dpiForceDohDesc">Шифрует DNS запросы для предотвращения DNS-spoofing. Необходимо для полной десинхронизации.</div>
+            </div>
+            <label class="toggle"><input type="checkbox" id="dpiForceDoh" checked><span class="slider"></span></label>
+          </div>
+          <div class="toggle-row">
+            <div>
+              <div class="toggle-label" data-i18n="dpiBlockQuic">Блокировать QUIC/HTTP3</div>
+              <div class="toggle-desc" data-i18n="dpiBlockQuicDesc">Форсировать TCP fallback чтобы SOCKS5 прокси мог обработать трафик</div>
+            </div>
+            <label class="toggle"><input type="checkbox" id="dpiBlockQuic" checked><span class="slider"></span></label>
+          </div>
+          <div class="toggle-row">
+            <div>
+              <div class="toggle-label" data-i18n="dpiStripHeaders">Удалить идентифицирующие заголовки</div>
+              <div class="toggle-desc" data-i18n="dpiStripHeadersDesc">Удалить заголовки alt-svc, server, x-powered-by для уменьшения трекинга</div>
+            </div>
+            <label class="toggle"><input type="checkbox" id="dpiStripHeaders" checked><span class="slider"></span></label>
+          </div>
+          <div class="toggle-row">
+            <div>
+              <div class="toggle-label" data-i18n="dpiGameFilter">Фильтр игрового UDP/TCP</div>
+              <div class="toggle-desc" data-i18n="dpiGameFilterDesc">Включить десинхронизацию для игровых портов (>1023). Может повлиять на другие сервисы.</div>
+            </div>
+            <label class="toggle"><input type="checkbox" id="dpiGameFilter" checked><span class="slider"></span></label>
+          </div>
+          <div class="toggle-row">
+            <div>
+              <div class="toggle-label" data-i18n="dpiAdBlock">Блокировать рекламу</div>
+              <div class="toggle-desc" data-i18n="dpiAdBlockDesc">Блокирует запросы к известным рекламным и трекинговым доменам. Работает и при включённом фильтре пакетов, и в туннеле.</div>
+            </div>
+            <label class="toggle"><input type="checkbox" id="dpiAdBlock" checked><span class="slider"></span></label>
+          </div>
+          <div class="toggle-row">
+            <div>
+              <div class="toggle-label" data-i18n="dpiAntiTrack">Антифингерпринтинг</div>
+              <div class="toggle-desc" data-i18n="dpiAntiTrackDesc">Добавляет шум в canvas, WebGL, аудио, шрифты для предотвращения фингерпринтинга</div>
+            </div>
+            <label class="toggle"><input type="checkbox" id="dpiAntiTrack" checked><span class="slider"></span></label>
+          </div>
+          <div class="toggle-row">
+            <div>
+              <div class="toggle-label" data-i18n="dpiAutoStart">Автозапуск фильтра с туннелем</div>
+              <div class="toggle-desc" data-i18n="dpiAutoStartDesc">Автоматически запускать фильтр пакетов при подключении WG</div>
+            </div>
+            <label class="toggle"><input type="checkbox" id="dpiAutoStart"><span class="slider"></span></label>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="welcomeModal" style="display:none">
+    <div class="modal">
+      <div class="modal-head">
+        <div class="logo">
+          <img src="icons/logo80.png" alt="Tarn" width="64" height="64" style="image-rendering:pixelated">
+        </div>
+        <div>
+          <h2 data-i18n="welcomeModalTitle">Добро пожаловать в Tarn!</h2>
+          <div class="desc" data-i18n="welcomeModalLead">Это расширение умеет две вещи — и обе работают независимо:</div>
+        </div>
+      </div>
+      <div class="modal-body">
+        <div class="modal-item">
+          <div class="modal-item-icon" style="color:var(--green)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 4 5v6c0 5 3.4 9.4 8 11 4.6-1.6 8-6 8-11V5z"/></svg>
+          </div>
+          <div>
+            <div class="modal-item-title" data-i18n="wmTunnelTitle">Туннель WG</div>
+            <div data-i18n="wmTunnelDesc">Добавь свой WG-конфиг → «Сохранить и подключить». Весь трафик Chrome пойдёт через твой сервер (локальный SOCKS5).</div>
+          </div>
+        </div>
+        <div class="modal-item">
+          <div class="modal-item-icon" style="color:var(--cyan)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          </div>
+          <div>
+            <div class="modal-item-title" data-i18n="wmDpiTitle">Фильтр пакетов (без VPN)</div>
+            <div data-i18n="wmDpiDesc">Открой вкладку «Фильтр пакетов» → «Включить фильтр». Расширение само подберёт рабочую стратегию (проверочные цели настраиваются в параметрах).</div>
+          </div>
+        </div>
+        <div class="modal-how" data-i18n="wmHow">Как начать: 1) Открой «Фильтр пакетов» и запусти «Полный тест стратегий» (рекомендуется), затем включи фильтр. 2) Для туннеля — добавь конфиг и установи native host во вкладке «Установка».</div>
+        <div class="modal-privacy">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          <span data-i18n="wmPrivacy">Все конфиги и данные хранятся только локально в браузере и никуда не отправляются.</span>
+        </div>
+      </div>
+      <button class="btn primary" id="welcomeModalOk" data-i18n="welcomeModalOk">Понятно, всё ясно</button>
+    </div>
+  </div>
+
+  <div id="gameOverlay" class="game-overlay" style="display:none">
+    <canvas id="gameCanvas"></canvas>
+    <div class="game-hint">SPACE / &#9650; прыгать · &#9660; присесть · ESC закрыть</div>
+  </div>
+
+  <script src="lib/i18n.js"></script>
+  <script src="lib/parser.js"></script>
+  <script src="lib/storage.js"></script>
+  <script src="lib/proxy.js"></script>
+  <script src="lib/adblock.js"></script>
+  <script src="lib/qrgen.js"></script>
+  <script src="lib/game.js"></script>
+  <script src="options.js"></script>
+</body>
+</html>

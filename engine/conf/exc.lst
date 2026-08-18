@@ -1,0 +1,11 @@
+# Services that must never be touched by the packet filter
+# (--hostlist-exclude/--ipset-exclude).
+# Empty by default: the filter protects nothing unless you add entries.
+# Your own entries belong in exc.user (extension UI: "Excluded domains")
+# or in an optional profile list (see exc.default-template).
+# One host per line.
+#
+# If a site breaks with desync strategies (e.g. it validates TLS/HTTP packet
+# framing strictly), add its host here so the filter never touches it.
+# Example:
+# example.invalid
