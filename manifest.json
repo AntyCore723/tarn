@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Tarn",
-  "version": "1.11.1",
+  "version": "1.12.0",
   "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAoaccJUc/94kEPLLNuYUbaXKIvXMYkpIG/QQXIfGfRE5aPkXvdTZ8iqFHJjFXxBG/jXf+exwreMXJmhyH5DsJDFtCnMVuA7H2bUr441fxWWKCsttaxpIKfG36vyIJwyv+nK7/8nfYaq4kdlgHP2iU8xVGum1x/6/gb3/lTJqZHTvTcps+s+lSFOLDg4ELnNxphaqBr/zoaVdVH1MBIyEmmV3v9EhW0ipP3DERT42vyCml6k2KEsquuk1CGbLBjlI7Ap4kbdHXBKBTjqKKXMyQ6noLZ55pSsPzdIzPQJ0f+NhKRqQ6tIPm9E/0B2rGdH0i1F/0IFhWTo/ROKfo1L4d+QIDAQAB",
   "description": "Network research tool for Chromium: import a tunnel .conf and route browser traffic through a local wireproxy instance, plus a packet-filter engine for connectivity diagnostics (desync strategies, DNS, reachability probes).",
   "minimum_chrome_version": "111",

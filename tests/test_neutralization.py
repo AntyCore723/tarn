@@ -35,6 +35,19 @@ def _all_args(keys):
     return out
 
 
+def _blocks(args):
+    """Split a winws argument list into its --new-separated filter blocks."""
+    blocks, cur = [], []
+    for a in args:
+        if a == "--new":
+            blocks.append(cur)
+            cur = []
+        else:
+            cur.append(a)
+    blocks.append(cur)
+    return blocks
+
+
 def test_hosts_entries_are_neutral():
     joined = w.HOSTS_ENTRIES.lower()
     for fam in BANNED_FAMILIES:
@@ -68,11 +81,79 @@ def test_safe_strategy_is_denylist_only():
 
 def test_aggressive_strategy_uses_allowlist_for_user_domains():
     args = w._build_args("fake_fakedsplit_ts")
-    assert any("--hostlist=" in a and "dom.user" in a for a in args), \
-        "aggressive strategies keep the dom.user allowlist"
+    assert any("--hostlist=" in a and "dom.active" in a for a in args), \
+        "aggressive strategies keep the dom.active allowlist"
     assert any("--hostlist-exclude" in a and "tgt.lst" in a for a in args), \
         "tgt.lst must stay excluded for aggressive strategies too"
     assert any("--ip-id=zero" in a for a in args)
+
+
+def test_aggressive_general_blocks_use_active_allowlist():
+    """Every HTTPS-filtering block of an aggressive strategy must be
+    allowlisted to dom.active: with an empty include list winws matches
+    EVERY host (nfq/hostlist.c), which desynced all TLS (v1.11.x
+    ERR_SSL_PROTOCOL_ERROR reports)."""
+    for key in ("hostfakesplit", "fake_fakedsplit_ts", "hybrid_tlsauto_hostfakesplit"):
+        for b in _blocks(w._build_args(key)):
+            if any("--filter-tcp=443" in a or "--filter-tcp=80,443" in a
+                   or "--filter-udp=443" in a for a in b):
+                assert any("--hostlist=" in a and "dom.active" in a for a in b), \
+                    f"aggressive block must be allowlisted to dom.active: {b}"
+
+
+def test_aggressive_ipset_and_game_blocks_restricted_to_dom_active():
+    """IPSet/Game blocks apply the desync to every IP in ip.lst; for
+    aggressive strategies they must be restricted to the user allowlist,
+    otherwise hostfakesplit breaks TLS on any site whose IP is in ip.lst."""
+    for key in ("hostfakesplit", "fake_tls_auto_ts", "fake_badseq"):
+        for b in _blocks(w._build_args(key)):
+            if any("--ipset=" in a for a in b):
+                assert any("--hostlist=" in a and "dom.active" in a for a in b), \
+                    f"IPSet/Game block must be allowlisted to dom.active: {b}"
+
+
+def test_safe_strategies_never_use_dom_active():
+    for key in ("multisplit", "syndata_multidisorder"):
+        args = w._build_args(key)
+        assert not any("dom.active" in a for a in args), \
+            "safe strategies keep the blanket exclusion-based filter"
+        assert any("--hostlist-exclude" in a and "dom.user" in a for a in args), \
+            "safe strategies must exclude user domains from blanket processing"
+
+
+def test_ensure_dom_active_writes_sentinel_when_empty():
+    import tempfile
+    import pathlib
+    with tempfile.TemporaryDirectory() as td:
+        conf = pathlib.Path(td) / "conf"
+        conf.mkdir()
+        saved = w.ENGINE_CONF
+        w.ENGINE_CONF = conf
+        try:
+            w._ensure_dom_active()
+        finally:
+            w.ENGINE_CONF = saved
+        assert (conf / "dom.active").exists()
+        assert (conf / "dom.active").read_text(encoding="utf-8").strip() == "0.invalid", \
+            "empty dom.user must materialize a match-nothing sentinel, not an empty list"
+
+
+def test_ensure_dom_active_writes_user_domains():
+    import tempfile
+    import pathlib
+    with tempfile.TemporaryDirectory() as td:
+        conf = pathlib.Path(td) / "conf"
+        conf.mkdir()
+        (conf / "dom.user").write_text("# comment\nchat.qwen.ai\nexample.com\n", encoding="utf-8")
+        saved = w.ENGINE_CONF
+        w.ENGINE_CONF = conf
+        try:
+            w._ensure_dom_active()
+        finally:
+            w.ENGINE_CONF = saved
+        active = (conf / "dom.active").read_text(encoding="utf-8").splitlines()
+        assert "chat.qwen.ai" in active and "example.com" in active
+        assert "0.invalid" not in active
 
 
 def test_voice_and_media_blocks_are_port_scoped():

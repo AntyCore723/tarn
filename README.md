@@ -81,6 +81,7 @@ The repo also ships **DPI research tooling** (a port of the well-known zapret en
 | "Filter service failed to start" / filter toggle stays on | The `tarndpi` service is missing or misconfigured (e.g. SDDL from a pre-1.6.0 install, or a corrupted ImagePath) | Re-run `install.bat` (v1.6.1+ recreates the service with the hardened SDDL and demand start) — no Chrome restart needed |
 | host.log shows `hosts update failed: Permission denied …drivers\etc\hosts.bak.wgbt` | Editing the hosts file needs elevation; the non-admin host cannot write it | Non-critical: the packet filter works without the hosts entries. Blocked CDN subdomains may still fail — enable `dpiForceDoh` in Settings → Packet filter for a DNS-level workaround |
 | Filter fails to start on Windows 11 24H2+ | Microsoft changed cross-signed kernel driver trust (March 2026); WinDivert64.sys may not load | Enable test-signing mode (`bcdedit /set testsigning on`) or wait for upstream WinDivert update. See Security section |
+| `ERR_SSL_PROTOCOL_ERROR` on some sites while the packet filter is on | v1.11.x applied aggressive strategies (e.g. `hostfakesplit`) to *every* HTTPS connection when no domains were listed (winws treats an empty allowlist as "match everything"). Servers with strict TLS record-framing validation reject the desynced stream | Update to v1.12.0+: aggressive strategies are now allowlisted — they only touch domains from Settings → Packet filter → "Additional domains". If a specific site still breaks, add it to "Excluded domains" or pick a safe strategy (`multisplit`) |
 
 Deep diagnostics: Settings → Packet filter → "Full diagnostics" (engine files, `tarndpi` service + SDDL, DNS resolution, real internet probes, host log tail — one click, copyable report), or `powershell -File native-host\diagnose.ps1`
 
@@ -312,6 +313,7 @@ to jump between them. The English version is canonical.
 | «Filter service failed to start» / фильтр не включается | Служба `tarndpi` отсутствует или повреждена (например, SDDL от установки до 1.6.0, битый ImagePath) | Перезапустите `install.bat` (v1.6.1+ пересоздаёт службу с усиленным SDDL и demand start) — перезапуск Chrome не нужен |
 | В host.log: `hosts update failed: Permission denied …drivers\etc\hosts.bak.wgbt` | Для правки hosts нужны права администратора; хост без них писать не может | Некритично: пакетный фильтр работает и без hosts-записей. Заблокированные CDN-поддомены могут не работать — включите `dpiForceDoh` в Настройки → Пакетный фильтр как обходной путь на уровне DNS |
 | Фильтр не стартует на Windows 11 24H2+ | Microsoft изменила доверие к кросс-подписанным драйверам ядра (март 2026); WinDivert64.sys может не загрузиться | Включите тестовую подпись (`bcdedit /set testsigning on`) или ждите обновления WinDivert. См. раздел «Безопасность» |
+| `ERR_SSL_PROTOCOL_ERROR` на ряде сайтов при включённом фильтре | v1.11.x применяла агрессивные стратегии (например, `hostfakesplit`) к **каждому** HTTPS-соединению, если домены не были указаны (winws считает пустой allowlist «обрабатывать всех»). Серверы со строгой валидацией TLS-фрейминга отвергают десинхронизированный поток | Обновитесь до v1.12.0+: агрессивные стратегии теперь строго allowlist — они трогают только домены из Настройки → Пакетный фильтр → «Дополнительные домены». Если конкретный сайт всё ещё ломается — добавьте его в «Исключённые домены» или выберите безопасную стратегию (`multisplit`) |
 
 Глубокая диагностика: Настройки → Пакетный фильтр → «Полная диагностика» (файлы движка, служба `tarndpi` + SDDL, разрешение DNS, реальные интернет-проверки, хвост лога хоста — одним кликом, отчёт можно скопировать), или `powershell -File native-host\diagnose.ps1`
 
@@ -542,6 +544,7 @@ git add .gitattributes
 | “Filter service failed to start” / 过滤器开关保持开启 | `tarndpi` 服务缺失或配置错误（例如 1.6.0 之前安装的 SDDL，或损坏的 ImagePath） | 重新运行 `install.bat`（v1.6.1+ 会以加固的 SDDL 和 demand start 重建服务）— 无需重启 Chrome |
 | host.log 显示 `hosts update failed: Permission denied …drivers\etc\hosts.bak.wgbt` | 编辑 hosts 文件需要提升权限；非管理员主机无法写入 | 非关键：数据包过滤器在没有 hosts 条目时也能工作。被屏蔽的 CDN 子域可能仍会失败 — 在 设置 → 数据包过滤器 中启用 `dpiForceDoh` 作为 DNS 层面的解决方法 |
 | 过滤器在 Windows 11 24H2+ 上无法启动 | Microsoft 更改了交叉签名内核驱动信任（2026 年 3 月）；WinDivert64.sys 可能无法加载 | 启用测试签名模式（`bcdedit /set testsigning on`）或等待上游 WinDivert 更新。见安全部分 |
+| 过滤器开启时部分网站报 `ERR_SSL_PROTOCOL_ERROR` | v1.11.x 在未列出任何域名时会把激进策略（如 `hostfakesplit`）应用到**每个** HTTPS 连接（winws 将空白名单视为“处理所有主机”）。对 TLS 记录分帧校验严格的服务器会拒绝去同步后的数据流 | 升级到 v1.12.0+：激进策略现在严格白名单化——只处理 设置 → 数据包过滤器 →“附加域名”中的域名。若某网站仍异常，请将其加入“排除的域名”或改用安全策略（`multisplit`） |
 
 深度诊断：设置 → 数据包过滤器 →“完整诊断”（引擎文件、`tarndpi` 服务 + SDDL、DNS 解析、真实互联网探测、主机日志尾部 — 一键生成可复制的报告），或 `powershell -File native-host\diagnose.ps1`
 

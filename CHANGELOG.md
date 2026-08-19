@@ -5,6 +5,44 @@ All notable changes to Tarn are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.12.0] - 2026-08-19
+
+### Fixed
+- **ERR_SSL_PROTOCOL_ERROR on a range of sites while the packet filter was
+  on.** Aggressive strategies (`hostfakesplit`, the fake-* and hybrid
+  families) were applied to *every* HTTPS connection when no domains were
+  listed: winws treats an empty `--hostlist` include list as "match
+  everything" (zapret `nfq/hostlist.c`: all include lists empty → check
+  passes), so with the default empty `dom.user`/`dom.lst` the desync ran on
+  all of 80/443, all alt ports and every IP in `ip.lst` (32k CIDR). Servers
+  with strict TLS record-framing validation rejected the desynced stream
+  (chat.qwen.ai and others). Aggressive strategies are now strictly
+  allowlisted via a materialized `dom.active` file — the user's domains, or
+  a match-nothing `0.invalid` sentinel when none are listed — so unlisted
+  sites are never touched (IPSet/Game-filter blocks included).
+- Clearing "Additional domains" in the UI now also clears `dom.user`
+  (previously stale domains survived after the list was emptied).
+- `engine/conf/dom.lst` header now documents its real role (exclusion
+  list); it was previously described as a processing allowlist.
+
+### Changed
+- Probe verification now includes the user's own bypass domains: the
+  auto-select and the full strategy test verify TLS against the sites the
+  user actually wants to open, so a strategy that breaks one of them is
+  rejected instead of being cached as "verified".
+- `start_dpi_bypass` response includes a warning when an aggressive
+  strategy runs with no listed domains ("touches no site until you add
+  domains").
+- README troubleshooting tables (EN/RU/ZH) gained an
+  `ERR_SSL_PROTOCOL_ERROR` row explaining the v1.11.x root cause and the
+  v1.12.0 fix.
+
+### Tests
+- `tests/test_neutralization.py`: 5 new regression tests — aggressive
+  general blocks allowlisted to `dom.active`, aggressive IPSet/Game blocks
+  restricted to it, safe strategies never use it, `_ensure_dom_active`
+  sentinel/user-domain materialization (15 total, all passing).
+
 ## [1.11.1] - 2026-08-15
 
 ### Fixed

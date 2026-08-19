@@ -1,4 +1,7 @@
-# Hosts processed by the packet filter engine (--hostlist).
-# Empty by default: each user configures their own targets.
+# Hosts that the packet filter NEVER touches (--hostlist-exclude).
+# Empty by default: with no entries the aggressive strategies are
+# allowlisted to dom.active (your "Additional domains") and the safe
+# strategies run over all traffic.
 # Add one host per line. Your own entries belong in dom.user (not touched
-# by updates) or via the extension UI ("Additional domains to bypass").
+# by updates) or via the extension UI ("Additional domains to bypass");
+# never-touch entries go to "Excluded domains" (exc.user).

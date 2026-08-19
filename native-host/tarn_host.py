@@ -1441,6 +1441,51 @@ def _sanitize_probe_targets(raw):
     return out
 
 
+# Effective allowlist for aggressive strategies. winws treats an EMPTY
+# include list (--hostlist) as "match everything" (nfq/hostlist.c: with all
+# include lists empty the check passes), so an aggressive strategy can never
+# be pointed at an empty dom.user - that would desync every HTTPS connection
+# (the v1.11.x ERR_SSL_PROTOCOL_ERROR reports). dom.active therefore always
+# carries either the user's domains or the 0.invalid sentinel (RFC 2606
+# reserved, matches no real SNI), keeping the filter inert until the user
+# lists a domain.
+DOM_ACTIVE_FILENAME = "dom.active"
+DOM_ACTIVE_SENTINEL = "0.invalid"
+
+
+def _read_host_list(path):
+    """Read a plain one-host-per-line list, skipping blanks and comments."""
+    try:
+        text = path.read_text(encoding="utf-8")
+    except OSError:
+        return []
+    hosts = []
+    for line in text.splitlines():
+        line = line.strip()
+        if not line or line.startswith("#"):
+            continue
+        hosts.append(line.lower().rstrip("."))
+    return hosts
+
+
+def _ensure_dom_active():
+    """Materialize the effective allowlist for aggressive strategies."""
+    conf = ENGINE_CONF
+    try:
+        conf.mkdir(parents=True, exist_ok=True)
+    except OSError:
+        pass
+    hosts = _read_host_list(conf / "dom.user")
+    active = hosts or [DOM_ACTIVE_SENTINEL]
+    try:
+        (conf / DOM_ACTIVE_FILENAME).write_text(
+            "\n".join(active) + "\n", encoding="utf-8")
+        log(f"dom.active: {len(active)} entry(ies)"
+            + ("" if hosts else " (sentinel - filter inert until domains are listed)"))
+    except OSError as e:
+        log(f"dom.active write failed: {e}")
+
+
 def _set_probe_targets(targets):
     """Apply a user-supplied probe-target override (module-global swap).
 
@@ -1736,12 +1781,19 @@ def _build_args(strategy_key="fake_fakedsplit_ts"):
 
     # Strategy classification: the safe strategies run as an exclusion-based
     # (denylist) filter over all traffic; the aggressive ones run only
-    # against user-listed domains (dom.user) so they never touch unlisted
-    # hosts. dom.lst and exc.* are always exclusions; tgt.lst excludes the
+    # against user-listed domains so they never touch unlisted hosts.
+    # dom.lst and exc.* are always exclusions; tgt.lst excludes the
     # targeted 443 group.
+    #
+    # Aggressive strategies are allowlisted to dom.active - the materialized
+    # user-domain file (or a match-nothing sentinel when dom.user is empty).
+    # This is a hard requirement: winws treats an EMPTY --hostlist file as
+    # "match everything" (nfq/hostlist.c), so pointing an aggressive strategy
+    # at an empty dom.user would desync every HTTPS connection and break TLS
+    # on sites with strict record framing (ERR_SSL_PROTOCOL_ERROR, v1.11.x).
     aggressive = strategy_key not in ("multisplit", "syndata_multidisorder")
     if aggressive:
-        dom_user = [f"--hostlist={LISTS}\\dom.user"]
+        dom_user = [f"--hostlist={LISTS}\\{DOM_ACTIVE_FILENAME}"]
     else:
         dom_user = [f"--hostlist-exclude={LISTS}\\dom.user"]
 
@@ -1851,6 +1903,7 @@ def _build_args(strategy_key="fake_fakedsplit_ts"):
     args += [
         "--filter-udp=443",
         f"--ipset={LISTS}\\ip.lst",
+        *dom_user,
         f"--hostlist-exclude={LISTS}\\exc.lst",
         f"--hostlist-exclude={LISTS}\\exc.user",
         f"--ipset-exclude={LISTS}\\ipexc.lst",
@@ -1865,6 +1918,7 @@ def _build_args(strategy_key="fake_fakedsplit_ts"):
     args += [
         "--filter-tcp=80,443,8443",
         f"--ipset={LISTS}\\ip.lst",
+        *dom_user,
         f"--hostlist-exclude={LISTS}\\exc.lst",
         f"--hostlist-exclude={LISTS}\\exc.user",
         f"--ipset-exclude={LISTS}\\ipexc.lst",
@@ -1878,6 +1932,7 @@ def _build_args(strategy_key="fake_fakedsplit_ts"):
     args += [
         f"--filter-tcp={gf_tcp}",
         f"--ipset={LISTS}\\ip.lst",
+        *dom_user,
         f"--ipset-exclude={LISTS}\\ipexc.lst",
         f"--ipset-exclude={LISTS}\\ipexc.user",
         *game,
@@ -1888,6 +1943,7 @@ def _build_args(strategy_key="fake_fakedsplit_ts"):
     args += [
         f"--filter-udp={gf_udp}",
         f"--ipset={LISTS}\\ip.lst",
+        *dom_user,
         f"--ipset-exclude={LISTS}\\ipexc.lst",
         f"--ipset-exclude={LISTS}\\ipexc.user",
         "--dpi-desync=fake",
@@ -2568,6 +2624,7 @@ def _run_dpi_candidate(strategy_key, wait=2.0):
     # SYSTEM — refuse to spawn if the pinned hashes no longer match.
     if not _verify_engine_files(ENGINE_BINS):
         raise RuntimeError("engine files failed integrity verification")
+    _ensure_dom_active()
     args = _build_args(strategy_key)
     log(f"dpi: launching strategy '{strategy_key}'")
     if _service_installed():
@@ -3255,13 +3312,13 @@ def start_dpi_bypass(dpi_settings=None):
         if not doh_ok:
             log("WARNING: DoH configuration failed — requires Administrator privileges")
 
-    # Step 3: Write custom domains from DPI settings
+    # Step 3: Write custom domains from DPI settings (always - clearing the
+    # list must also clear dom.user, stale domains must never survive).
+    custom_domains = (dpi_settings or {}).get("dpiCustomDomains", [])
     if dpi_settings:
-        custom_domains = dpi_settings.get("dpiCustomDomains", [])
-        if custom_domains:
-            dom_user = ENGINE_CONF / "dom.user"
-            dom_user.write_text("\n".join(custom_domains) + "\n", encoding="utf-8")
-            log(f"wrote {len(custom_domains)} custom domains to {dom_user}")
+        dom_user = ENGINE_CONF / "dom.user"
+        dom_user.write_text("\n".join(custom_domains) + "\n", encoding="utf-8")
+        log(f"wrote {len(custom_domains)} custom domains to {dom_user}")
 
     # Step 3.1: Write excluded domains from DPI settings (never touched
     # by the filter: consumed as --hostlist-exclude/--ipset-exclude).
@@ -3272,10 +3329,18 @@ def start_dpi_bypass(dpi_settings=None):
             exc_user.write_text("\n".join(excluded_domains) + "\n", encoding="utf-8")
             log(f"wrote {len(excluded_domains)} excluded domains to {exc_user}")
 
-    # Step 3.5: Apply user-supplied probe targets (empty keeps the defaults)
-    _set_probe_targets((dpi_settings or {}).get("dpiProbeHosts"))
+    # Step 3.5: Probe targets = user-supplied + the user's bypass domains.
+    # A strategy that passes the neutral defaults may still break the user's
+    # actual sites, so those sites are part of verification too - auto-select
+    # and the full strategy test will not pick a strategy that kills TLS on
+    # a domain the user actually wants to open.
+    user_domains = _read_host_list(ENGINE_CONF / "dom.user")
+    probe_hosts = list((dpi_settings or {}).get("dpiProbeHosts") or [])
+    probe_hosts += user_domains
+    _set_probe_targets(probe_hosts or None)
     if PROBE_HOSTS != DEFAULT_PROBE_HOSTS:
-        log(f"dpi: using {len(PROBE_HOSTS)} custom probe targets")
+        log(f"dpi: using {len(PROBE_HOSTS)} probe targets "
+            f"(incl. {len(user_domains)} from dom.user)")
 
     # Step 4: Strategy selection
     if not _service_installed():
@@ -3319,6 +3384,10 @@ def start_dpi_bypass(dpi_settings=None):
         warnings.append("hosts file update failed — may require Administrator privileges")
     if not doh_ok:
         warnings.append("DoH configuration failed — requires Administrator privileges. Run install_service.bat as Administrator or disable DoH in Settings.")
+    if dpi_strategy and dpi_strategy not in ("multisplit", "syndata_multidisorder") and not user_domains:
+        warnings.append(
+            "No domains are listed in 'Additional domains' (Settings → Packet filter). "
+            "The packet filter is running but touches no site until you add the ones you want to bypass.")
 
     return {"pid": dpi_pid, "strategy": dpi_strategy, "verified": dpi_verified, "warnings": warnings}
 
@@ -3446,7 +3515,9 @@ def _rank_strategy_results(results):
 def _dpi_test_worker(params):
     ctl = DPI_TEST_CONTROL
     try:
-        _set_probe_targets(params.get("probeHosts"))
+        probe_hosts = list(params.get("probeHosts") or [])
+        probe_hosts += _read_host_list(ENGINE_CONF / "dom.user")
+        _set_probe_targets(probe_hosts or None)
         want = params.get("strategies") or list(DPI_STRATEGY_ORDER)
         keys = [k for k in want if k in DPI_STRATEGY_ORDER] or list(DPI_STRATEGY_ORDER)
         passes = max(1, min(int(params.get("passes", 2)), 5))
